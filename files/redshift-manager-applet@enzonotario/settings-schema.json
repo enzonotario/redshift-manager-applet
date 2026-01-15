@@ -1,0 +1,277 @@
+{
+    "layout": {
+        "type": "layout",
+        "pages": ["general", "temperature", "appearance", "shortcuts", "presets"],
+
+        "general": {
+            "type": "page",
+            "title": "General",
+            "sections": [
+                "general-section"
+            ]
+        },
+        "temperature": {
+            "type": "page",
+            "title": "Temperature",
+            "sections": [
+                "day-section",
+                "night-section"
+            ]
+        },
+        "appearance": {
+            "type": "page",
+            "title": "Appearance",
+            "sections": [
+                "icon-section",
+                "label-section"
+            ]
+        },
+        "shortcuts": {
+            "type": "page",
+            "title": "Keyboard Shortcuts",
+            "sections": [
+                "shortcuts-section"
+            ]
+        },
+        "presets": {
+            "type": "page",
+            "title": "Presets",
+            "sections": [
+                "presets-section"
+            ]
+        },
+
+        "general-section": {
+            "type": "section",
+            "title": "General Settings",
+            "keys": [
+                "enabled",
+                "auto-update",
+                "update-interval",
+                "smooth-transition"
+            ]
+        },
+        "day-section": {
+            "type": "section",
+            "title": "Day Settings",
+            "keys": [
+                "day-temp",
+                "day-brightness"
+            ]
+        },
+        "night-section": {
+            "type": "section",
+            "title": "Night Settings",
+            "keys": [
+                "enable-night",
+                "manual-night-time",
+                "night-time-start",
+                "night-time-end",
+                "location-latitude",
+                "location-longitude",
+                "night-temp",
+                "night-brightness"
+            ]
+        },
+        "icon-section": {
+            "type": "section",
+            "title": "Icon Settings",
+            "keys": [
+                "custom-icon-path"
+            ]
+        },
+        "label-section": {
+            "type": "section",
+            "title": "Label Settings",
+            "keys": [
+                "show-label"
+            ]
+        },
+        "shortcuts-section": {
+            "type": "section",
+            "title": "Keyboard Shortcuts",
+            "keys": [
+                "shortcuts-info",
+                "key-toggle",
+                "key-temp-up",
+                "key-temp-down",
+                "key-brightness-up",
+                "key-brightness-down"
+            ]
+        },
+        "presets-section": {
+            "type": "section",
+            "title": "Temperature & Brightness Presets",
+            "keys": [
+                "presets-info",
+                "presets"
+            ]
+        }
+    },
+
+    "enabled": {
+        "type": "switch",
+        "default": false,
+        "description": "Enable Redshift",
+        "tooltip": "Turn Redshift on or off"
+    },
+    "auto-update": {
+        "type": "switch",
+        "default": true,
+        "description": "Auto update",
+        "tooltip": "Continuously adjust color temperature based on time"
+    },
+    "update-interval": {
+        "type": "spinbutton",
+        "default": 5,
+        "min": 1,
+        "max": 60,
+        "step": 1,
+        "units": "seconds",
+        "description": "Update interval",
+        "tooltip": "How often to update the temperature (in seconds)"
+    },
+    "smooth-transition": {
+        "type": "switch",
+        "default": true,
+        "description": "Smooth transition",
+        "tooltip": "Enable smooth transitions between temperatures"
+    },
+    "day-temp": {
+        "type": "spinbutton",
+        "default": 6500,
+        "min": 1000,
+        "max": 10000,
+        "step": 100,
+        "units": "K",
+        "description": "Day temperature",
+        "tooltip": "Color temperature during the day"
+    },
+    "day-brightness": {
+        "type": "scale",
+        "default": 100,
+        "min": 10,
+        "max": 100,
+        "step": 5,
+        "description": "Day brightness",
+        "tooltip": "Screen brightness during the day (%)"
+    },
+    "enable-night": {
+        "type": "switch",
+        "default": true,
+        "description": "Enable night mode",
+        "tooltip": "Automatically adjust temperature at night"
+    },
+    "manual-night-time": {
+        "type": "switch",
+        "default": false,
+        "description": "Use manual night time",
+        "tooltip": "Set fixed times for night mode (otherwise uses sunrise/sunset based on location)",
+        "dependency": "enable-night"
+    },
+    "night-time-start": {
+        "type": "timechooser",
+        "default": {
+            "h": 20,
+            "m": 0,
+            "s": 0
+        },
+        "description": "Night start time (sunset)",
+        "tooltip": "Time when night mode begins",
+        "dependency": "manual-night-time"
+    },
+    "night-time-end": {
+        "type": "timechooser",
+        "default": {
+            "h": 6,
+            "m": 0,
+            "s": 0
+        },
+        "description": "Night end time (sunrise)",
+        "tooltip": "Time when night mode ends",
+        "dependency": "manual-night-time"
+    },
+    "location-latitude": {
+        "type": "entry",
+        "default": "0",
+        "description": "Latitude",
+        "tooltip": "Your location latitude (auto-detected on first run, or enter manually)"
+    },
+    "location-longitude": {
+        "type": "entry",
+        "default": "0",
+        "description": "Longitude",
+        "tooltip": "Your location longitude (auto-detected on first run, or enter manually)"
+    },
+    "night-temp": {
+        "type": "spinbutton",
+        "default": 3500,
+        "min": 1000,
+        "max": 10000,
+        "step": 100,
+        "units": "K",
+        "description": "Night temperature",
+        "tooltip": "Color temperature during the night"
+    },
+    "night-brightness": {
+        "type": "scale",
+        "default": 90,
+        "min": 10,
+        "max": 100,
+        "step": 5,
+        "description": "Night brightness",
+        "tooltip": "Screen brightness during the night (%)"
+    },
+    "custom-icon-path": {
+        "type": "filechooser",
+        "default": "",
+        "description": "Custom icon path",
+        "tooltip": "Select a custom icon file (leave empty to use default)",
+        "select-dir": false
+    },
+    "show-label": {
+        "type": "switch",
+        "default": true,
+        "description": "Show label",
+        "tooltip": "Show text label next to the icon"
+    },
+    "shortcuts-info": {
+        "type": "label",
+        "description": "Configure global keyboard shortcuts. Temperature step: 50K, Brightness step: 5%"
+    },
+    "key-toggle": {
+        "type": "keybinding",
+        "description": "Toggle Redshift On/Off",
+        "default": ""
+    },
+    "key-temp-up": {
+        "type": "keybinding",
+        "description": "Increase Temperature (+50K)",
+        "default": ""
+    },
+    "key-temp-down": {
+        "type": "keybinding",
+        "description": "Decrease Temperature (-50K)",
+        "default": ""
+    },
+    "key-brightness-up": {
+        "type": "keybinding",
+        "description": "Increase Brightness (+5%)",
+        "default": ""
+    },
+    "key-brightness-down": {
+        "type": "keybinding",
+        "description": "Decrease Brightness (-5%)",
+        "default": ""
+    },
+    "presets-info": {
+        "type": "label",
+        "description": "Create and manage presets with custom temperature and brightness settings. Each preset can have a keyboard shortcut assigned."
+    },
+    "presets": {
+        "type": "custom",
+        "file": "settingsWidgets.py",
+        "widget": "PresetsWidget",
+        "default": "[]"
+    }
+}

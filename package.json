@@ -1,0 +1,22 @@
+{
+    "name": "redshift-manager-applet",
+    "version": "0.0.1",
+    "description": "Cinnamon applet to manage Redshift color temperature and brightness",
+    "scripts": {
+        "install-applet": "dev-install.sh",
+        "uninstall-applet": "dev-uninstall.sh",
+        "reload-cinnamon": "./reload-cinnamon.sh",
+        "refresh": "npm run uninstall-applet && npm run install-applet && npm run reload-cinnamon"
+    },
+    "keywords": [
+        "cinnamon",
+        "applet",
+        "redshift",
+        "color-temperature"
+    ],
+    "author": {
+        "name": "Enzo Notario",
+        "email": "hi@enzonotario.me"
+    },
+    "license": "MIT"
+}

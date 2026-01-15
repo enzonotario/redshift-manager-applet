@@ -1,0 +1,10 @@
+{
+    "uuid": "redshift-manager-applet@enzonotario",
+    "name": "Redshift Manager Applet",
+    "description": "Manage Redshift color temperature and brightness from your panel",
+    "version": "0.0.1",
+    "multiversion": true,
+    "author": "Enzo Notario",
+    "website": "",
+    "icon": "weather-clear"
+}
