@@ -1,0 +1,71 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Get version from tag
+        id: tag_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+          echo "Tag: ${GITHUB_REF#refs/tags/}"
+
+      - name: Create release archive
+        id: create_archive
+        run: |
+          APPLET_UUID="redshift-manager-applet@enzonotario"
+          SOURCE_DIR="files/$APPLET_UUID"
+          VERSION="${{ steps.tag_version.outputs.version }}"
+          FILE_NAME="${APPLET_UUID}_${VERSION}.tar.gz"
+          
+          if [ ! -d "$SOURCE_DIR" ]; then
+            echo "Error: Source directory not found: $SOURCE_DIR"
+            exit 1
+          fi
+          
+          if [ ! -f "$SOURCE_DIR/applet.js" ]; then
+            echo "Error: applet.js not found in $SOURCE_DIR"
+            exit 1
+          fi
+          
+          echo "Creating release archive..."
+          echo "Version: $VERSION"
+          echo "File: $FILE_NAME"
+          
+          # Crear el tar.gz con la estructura correcta (applet directamente en la raíz)
+          tar -czf "$FILE_NAME" -C files "$APPLET_UUID"
+          
+          echo "Archive created: $FILE_NAME"
+          echo "file_name=$FILE_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create or update release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ${{ steps.create_archive.outputs.file_name }}
+          name: Release ${{ steps.tag_version.outputs.tag }}
+          tag_name: ${{ steps.tag_version.outputs.tag }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
