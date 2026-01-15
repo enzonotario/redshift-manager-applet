@@ -60,7 +60,12 @@ npm run refresh
 
 # Uninstall
 npm run uninstall-applet
+
+# Generate OG image
+npm run generate-og
 ```
+
+The OG image generation uses [x-satori](https://github.com/Zhengqbbb/x-satori) to create an Open Graph image for social media sharing. The generated image (`og-image.svg`) includes the applet icon and key features.
 
 ## Releasing
 

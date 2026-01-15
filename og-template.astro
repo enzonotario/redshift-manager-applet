@@ -1,0 +1,47 @@
+---
+interface Props {
+  title?: string
+  description?: string
+  icon?: string
+}
+
+const {
+  title = 'Redshift Manager Applet',
+  description = 'A Cinnamon desktop applet for managing Redshift, providing easy control over screen color temperature and brightness to reduce eye strain.',
+  icon = ''
+} = Astro.props
+---
+
+<div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); padding: 60px; font-family: 'Inter', system-ui, -apple-system, sans-serif; position: relative; overflow: hidden;">
+  <div style="display: flex; align-items: center; justify-content: center; width: 120px; height: 120px; margin-bottom: 30px;">
+    {icon ? (
+      <img
+        src={icon}
+        alt="Redshift Manager Applet Icon"
+        style="width: 100%; height: 100%; object-fit: contain;"
+      />
+    ) : null}
+  </div>
+
+  <h1 style="font-size: 64px; font-weight: 700; color: white; margin: 0 0 40px 0; line-height: 1.1; letter-spacing: -1px; text-align: center;">
+    {title}
+  </h1>
+
+  <div style="display: flex; flex-direction: column; align-items: center; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); border-radius: 16px; padding: 32px; max-width: 900px; width: 100%;">
+    <p style="font-size: 28px; color: white; margin: 0 0 24px 0; line-height: 1.5; font-weight: 400; text-align: center;">
+      {description}
+    </p>
+
+    <div style="display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;">
+      <div style="background: rgba(255, 255, 255, 0.15); padding: 10px 20px; border-radius: 8px; font-size: 18px; color: white; font-weight: 500;">
+        Linux Mint
+      </div>
+      <div style="background: rgba(255, 255, 255, 0.15); padding: 10px 20px; border-radius: 8px; font-size: 18px; color: white; font-weight: 500;">
+        Cinnamon
+      </div>
+      <div style="background: rgba(255, 255, 255, 0.15); padding: 10px 20px; border-radius: 8px; font-size: 18px; color: white; font-weight: 500;">
+        Redshift
+      </div>
+    </div>
+  </div>
+</div>
