@@ -126,13 +126,13 @@ class RedshiftApplet extends Applet.TextIconApplet {
                 this.dayTemp = Math.round(value);
                 this.currentTemp = Math.round(value);
                 this.applyRedshift();
-                this.saveConfigurationToFile();
+                this._queueSaveConfig();
             });
             this.addSliderItem("Brightness", 10, 100, this.dayBrightness || 100, 1, (value) => {
                 this.dayBrightness = Math.round(value);
                 this.currentBrightness = Math.round(value);
                 this.applyRedshift();
-                this.saveConfigurationToFile();
+                this._queueSaveConfig();
             });
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
@@ -141,12 +141,12 @@ class RedshiftApplet extends Applet.TextIconApplet {
             this.addSliderItem("Temperature", 1000, 10000, this.nightTemp || 3500, 50, (value) => {
                 this.nightTemp = Math.round(value);
                 this.applyRedshift();
-                this.saveConfigurationToFile();
+                this._queueSaveConfig();
             });
             this.addSliderItem("Brightness", 10, 100, this.nightBrightness || 90, 1, (value) => {
                 this.nightBrightness = Math.round(value);
                 this.applyRedshift();
-                this.saveConfigurationToFile();
+                this._queueSaveConfig();
             });
 
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -364,7 +364,10 @@ class RedshiftApplet extends Applet.TextIconApplet {
         rebuildMenu() {
             try {
                 if (this.menu && this.menu.isOpen) {
-                    this.menu.close();
+                    // Don't close and rebuild if menu is open, it's disruptive
+                    // Just refresh presets if possible, or skip for now
+                    global.log(`Redshift: Menu is open, skipping rebuild to avoid closing it`);
+                    return;
                 }
             }
             catch (e) {}
@@ -785,8 +788,14 @@ class RedshiftApplet extends Applet.TextIconApplet {
                 sliderWidget._value = (currentValue - min) / (max - min);
                 labelWidget.text = `${label}: ${Math.round(currentValue)}`;
                 callback(currentValue);
-                imports.mainloop.timeout_add(50, () => {
+                
+                // Clear any existing scroll timeout
+                if (this._scrollTimeoutId) {
+                    imports.mainloop.source_remove(this._scrollTimeoutId);
+                }
+                this._scrollTimeoutId = imports.mainloop.timeout_add(150, () => {
                     isScrolling = false;
+                    this._scrollTimeoutId = 0;
                     return false;
                 });
                 return Clutter.EVENT_STOP;
@@ -799,8 +808,7 @@ class RedshiftApplet extends Applet.TextIconApplet {
                     return;
                 lastUpdateTime = now;
                 let rawValue = min + sliderWidget._value * (max - min);
-                currentValue = Math.round(rawValue / step) * step;
-                currentValue = Math.max(min, Math.min(max, currentValue));
+                currentValue = Math.max(min, Math.min(max, rawValue));
                 labelWidget.text = `${label}: ${Math.round(currentValue)}`;
                 callback(currentValue);
             });
@@ -815,6 +823,16 @@ class RedshiftApplet extends Applet.TextIconApplet {
             }
             this.applyRedshift();
             this.saveConfigurationToFile();
+        }
+        _queueSaveConfig() {
+            if (this._saveConfigTimeoutId) {
+                imports.mainloop.source_remove(this._saveConfigTimeoutId);
+            }
+            this._saveConfigTimeoutId = imports.mainloop.timeout_add(1000, () => {
+                this.saveConfigurationToFile();
+                this._saveConfigTimeoutId = 0;
+                return false;
+            });
         }
         onTemperatureChanged() {
             this.applyRedshift();
