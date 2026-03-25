@@ -1,6 +1,6 @@
 {
     "name": "redshift-manager-applet",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "type": "module",
     "description": "Cinnamon applet to manage Redshift color temperature and brightness",
     "scripts": {
