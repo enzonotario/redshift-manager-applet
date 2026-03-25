@@ -1,11 +1,11 @@
 {
     "name": "redshift-manager-applet",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "type": "module",
     "description": "Cinnamon applet to manage Redshift color temperature and brightness",
     "scripts": {
-        "install-applet": "dev-install.sh",
-        "uninstall-applet": "dev-uninstall.sh",
+        "install-applet": "./dev-install.sh",
+        "uninstall-applet": "./dev-uninstall.sh",
         "reload-cinnamon": "./reload-cinnamon.sh",
         "refresh": "npm run uninstall-applet && npm run install-applet && npm run reload-cinnamon",
         "generate-og": "x-satori --config ./satori.config.ts --template ./og-template.astro --output ./og-image.svg"
