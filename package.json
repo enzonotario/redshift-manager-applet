@@ -4,6 +4,7 @@
     "type": "module",
     "description": "Cinnamon applet to manage Redshift color temperature and brightness",
     "scripts": {
+        "build": "./build.sh",
         "install-applet": "./dev-install.sh",
         "uninstall-applet": "./dev-uninstall.sh",
         "reload-cinnamon": "./reload-cinnamon.sh",
