@@ -8,6 +8,7 @@ const Slider = imports.ui.slider;
 const Main = imports.ui.main;
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
+const Meta = imports.gi.Meta;
 
 const ScrollDirection = Clutter.ScrollDirection;
 const TEMP_STEP = 50;
@@ -42,7 +43,7 @@ class RedshiftApplet extends Applet.TextIconApplet {
             this.settings.bind("night-temp", "nightTemp");
             this.settings.bind("night-brightness", "nightBrightness");
             this.settings.bind("custom-icon-path", "customIconPath", this.onIconSettingsChanged.bind(this));
-            this.settings.bind("show-label", "showLabel", this.onLabelSettingsChanged.bind(this));
+            this.settings.bind("show-label", "displayLabelEnabled", this.onLabelSettingsChanged.bind(this));
             this.settings.bind("key-toggle", "keyToggle", this.onShortcutChanged.bind(this));
             this.settings.bind("key-temp-up", "keyTempUp", this.onShortcutChanged.bind(this));
             this.settings.bind("key-temp-down", "keyTempDown", this.onShortcutChanged.bind(this));
@@ -53,6 +54,17 @@ class RedshiftApplet extends Applet.TextIconApplet {
             this.settings.connect("changed::presets", () => {
                 this.loadPresetsFromSettings();
             });
+
+            this._monitorCount = global.display.get_n_monitors();
+            this._displayChangeTimeoutId = 0;
+            this._displayChangeRetryTimeoutId = 0;
+            this._monitorManagerChangedId = 0;
+            this._layoutManagerChangedId = 0;
+            this._setupMonitorListeners();
+
+            this.setAllowedLayout(Applet.AllowedLayout.BOTH);
+            this.updateIcon();
+            this.updateLabel();
 
             imports.mainloop.timeout_add(2000, () => {
                 this.loadConfigurationFromFile();
@@ -1106,7 +1118,7 @@ class RedshiftApplet extends Applet.TextIconApplet {
         }
         updateLabel() {
             try {
-                const showLabel = this.showLabel !== undefined ? this.showLabel : true;
+                const showLabel = this.displayLabelEnabled !== undefined ? this.displayLabelEnabled : true;
                 if (showLabel) {
                     this.set_applet_label("Redshift");
                 }
@@ -1135,6 +1147,81 @@ class RedshiftApplet extends Applet.TextIconApplet {
                 this.statusLabel.label.text = `Status: ${statusText}`;
             }
             this.set_applet_tooltip(`Redshift: ${statusText}`);
+        }
+        _setupMonitorListeners() {
+            try {
+                this._monitorManagerChangedId = Meta.MonitorManager.get().connect(
+                    'monitors-changed',
+                    () => this._onMonitorsChanged()
+                );
+            }
+            catch (e) {
+                global.logError(`Redshift: MonitorManager listener failed: ${e}`);
+            }
+
+            try {
+                this._layoutManagerChangedId = Main.layoutManager.connect(
+                    'monitors-changed',
+                    () => this._onMonitorsChanged()
+                );
+            }
+            catch (e) {
+                global.logError(`Redshift: layoutManager listener failed: ${e}`);
+            }
+        }
+        _removeMonitorListeners() {
+            if (this._monitorManagerChangedId) {
+                try {
+                    Meta.MonitorManager.get().disconnect(this._monitorManagerChangedId);
+                }
+                catch (e) {}
+                this._monitorManagerChangedId = 0;
+            }
+            if (this._layoutManagerChangedId) {
+                try {
+                    Main.layoutManager.disconnect(this._layoutManagerChangedId);
+                }
+                catch (e) {}
+                this._layoutManagerChangedId = 0;
+            }
+        }
+        _onMonitorsChanged() {
+            if (!this.enabled)
+                return;
+
+            this._monitorCount = global.display.get_n_monitors();
+            this._scheduleReapplyAfterDisplayChange();
+        }
+        _clearDisplayChangeTimeouts() {
+            if (this._displayChangeTimeoutId) {
+                imports.mainloop.source_remove(this._displayChangeTimeoutId);
+                this._displayChangeTimeoutId = 0;
+            }
+            if (this._displayChangeRetryTimeoutId) {
+                imports.mainloop.source_remove(this._displayChangeRetryTimeoutId);
+                this._displayChangeRetryTimeoutId = 0;
+            }
+        }
+        _scheduleReapplyAfterDisplayChange() {
+            this._clearDisplayChangeTimeouts();
+
+            this._displayChangeTimeoutId = imports.mainloop.timeout_add(500, () => {
+                this._displayChangeTimeoutId = 0;
+                if (this.enabled) {
+                    global.log(`Redshift: Re-applying after monitor configuration change (${this._monitorCount} monitor(s))`);
+                    this.applyRedshift();
+                }
+                return false;
+            });
+
+            this._displayChangeRetryTimeoutId = imports.mainloop.timeout_add(1500, () => {
+                this._displayChangeRetryTimeoutId = 0;
+                if (this.enabled) {
+                    global.log(`Redshift: Re-applying after monitor configuration change (retry)`);
+                    this.applyRedshift();
+                }
+                return false;
+            });
         }
         applyRedshift() {
             const enabled = this.enabled;
@@ -1185,6 +1272,8 @@ class RedshiftApplet extends Applet.TextIconApplet {
             if (this.updateInterval) {
                 imports.mainloop.source_remove(this.updateInterval);
             }
+            this._clearDisplayChangeTimeouts();
+            this._removeMonitorListeners();
             this.resetRedshift();
             this.settings.finalize();
         }
